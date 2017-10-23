@@ -82,10 +82,23 @@ spawnerPaths <- function(valid_obs, valid_paths){
     mutate(ModelObs = TRUE) %>%
     select(TagID, ObsDate, Node, ModelObs)
 
-  allObs = allObs %>%
+  allObs <- allObs %>%
     left_join(modObs,
               by = c('TagID', 'Node', 'ObsDate')) %>%
     mutate(ModelObs = ifelse(is.na(ModelObs), F, ModelObs))
+
+  # RK added this for migration direction
+  migObs <- allObs %>%
+    filter(Direction == 'Up') %>%
+    group_by(TagID) %>%
+    slice(which.max(ObsDate)) %>%
+    select(TagID, maxUpDate = ObsDate)
+
+  allObs <- allObs %>%
+    left_join(migObs) %>%
+    mutate(Migration = ifelse(ObsDate <= maxUpDate, 'Upstream', 'Downstream'))
+  #select(-maxUpDate)
+
 #
 #   write.csv(allObs, './Data/rk_fnc_output.csv')
 #
