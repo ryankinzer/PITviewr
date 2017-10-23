@@ -80,9 +80,12 @@ spawnerPaths <- function(valid_obs, valid_paths){
     distinct(Node, .keep_all=TRUE) %>%
   slice(1:which.max(NodeOrder)) %>%
     mutate(ModelObs = TRUE) %>%
-    select(TagID, ObsDate, ModelObs)
+    select(TagID, ObsDate, Node, ModelObs)
 
-  allObs <- left_join(allObs, modObs)
+  allObs = allObs %>%
+    left_join(modObs,
+              by = c('TagID', 'Node', 'ObsDate')) %>%
+    mutate(ModelObs = ifelse(is.na(ModelObs), F, ModelObs))
 #
 #   write.csv(allObs, './Data/rk_fnc_output.csv')
 #
