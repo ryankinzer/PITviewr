@@ -36,6 +36,7 @@
 #'
 #' @import dplyr
 #' @import readr
+#' @import lubridate
 #' @export
 #' @return NULL
 
@@ -64,11 +65,10 @@ nodeAssign <- function(valid_tags, observation, configuration, truncate = FALSE)
   }
 
   obs_df <- obs %>%
-    mutate(ObsDate = ifelse(is.na(`Event Release Date Time Value`),`Event Date Time Value`,
-                                       `Event Release Date Time Value`),
-           `Event Date Time Value` = as.POSIXct(`Event Date Time Value`, format = '%m/%d/%Y %H:%M'),
-           `Event Release Date Time Value` = as.POSIXct(`Event Release Date Time Value`, format = '%m/%d/%Y %H:%M'),
-          ObsDate = as.POSIXct(ObsDate, format = '%m/%d/%Y %H:%M')) %>%
+    mutate(`Event Date Time Value` = mdy_hms(`Event Date Time Value`),
+           `Event Release Date Time Value` = mdy_hms(`Event Release Date Time Value`),
+           ObsDate = if_else(is.na(`Event Release Date Time Value`),`Event Date Time Value`,
+                             `Event Release Date Time Value`)) %>%
     select(TagID = `Tag Code`,
            ObsDate,
            SiteID = `Event Site Code Value`,
