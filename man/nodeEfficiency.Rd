@@ -4,15 +4,15 @@
 \alias{nodeEfficiency}
 \title{nodeEfficiency: Estimates node detection efficiency.}
 \usage{
-nodeEfficiency(data, node, direction = c("Upstream", "Downstream"))
+nodeEfficiency(data, direction = c("Upstream", "Downstream"))
 }
 \arguments{
 \item{data}{a data frame containing observation histories processed by \code{nodeAssign}}
 
+\item{direction}{}
+
 \item{node}{the desired node for a unique tag count.  Unique tags at the specified node are then
 searched for at all other nodes in the data frame}
-
-\item{direction}{}
 }
 \description{
 Estimates detection efficiences at each node in a data frame returned from

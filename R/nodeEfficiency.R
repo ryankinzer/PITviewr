@@ -17,18 +17,26 @@
 #' @import dplyr
 #' @export
 #' @return NULL
-nodeEfficiency <- function(data, node, direction = c('Upstream', 'Downstream')){
+nodeEfficiency <- function(data, direction = c('Upstream', 'Downstream')){
 
   direction <- match.arg(direction)
 
-  nodeord_ <- data$NodeOrder[data$Node == node][1]
-  node_ <- node
+  nodes <- data %>%
+    select(Node, NodeOrder) %>%
+    distinct(Node, .keep_all = TRUE) %>%
+    arrange(NodeOrder) %>%
+    mutate(Unique_tags = as.integer(NA),
+           Marks = as.integer(NA),
+           Recaps = as.integer(NA))
+
+for(i in 1:nrow(nodes)){
+  node_ <- nodes$Node[i] # change row to i
+  nodeord_ <- nodes$NodeOrder[i] # change row to i
 
   unique <- data %>%
     filter(Node == node_) %>%
     select(TagID) %>%
     n_distinct()
-
 
   if(direction == 'Upstream'){
 
@@ -48,7 +56,16 @@ nodeEfficiency <- function(data, node, direction = c('Upstream', 'Downstream')){
     inner_join(tmp) %>%
     distinct(TagID)
 
-  df <- tibble(Node  = node_, NodeOrder = nodeord_,  Unique_tags = unique, Marks = n_distinct(tmp), Recaps = n_distinct(tmp_full))
+  nodes[i,3] <- unique
+  nodes[i,4] <- n_distinct(tmp)
+  nodes[i,5] <- n_distinct(tmp_full)
+
+  } # end iloop
+
+  df <- nodes
+  # %>%
+  #   mutate(d_hat = round(Recaps/Marks, digits = 2),
+  #          N_tags = round(Unique_tags/d_hat, digits = 0)
 
   return(df)
 }
